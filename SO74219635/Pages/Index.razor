@@ -1,0 +1,49 @@
+﻿@page "/"
+@using System.Text.Json
+
+<PageTitle>Index</PageTitle>
+
+@for (var i = 1; i < 4; i++)
+{
+    var tagTypeId = i;
+    
+    <RadzenDropDown Data="_tags.Where(t => t.TagTypeId == i).ToList()"
+                    Value="_selectedTags"
+                    ValueChanged="values => OnValueChanged(values, tagTypeId)"
+                    TValue="List<int>"
+                    Multiple="true"
+                    ValueProperty="Id"
+                    TextProperty="Name" />
+}
+
+<p>@JsonSerializer.Serialize(_selectedTags)</p>
+
+@code {
+    private List<int> _selectedTags = new List<int>() { 1 };
+
+    private void OnValueChanged(List<int> values, int tagTypeId)
+    {
+        var data = _tags.Where(t => t.TagTypeId == tagTypeId).Select(t => t.Id);
+        
+        _selectedTags.RemoveAll(x => data.Contains(x));
+        
+        _selectedTags = _selectedTags.Concat(values).ToList();
+    }
+
+    private List<Tag> _tags = new()
+    {
+        new Tag { Id = 1, TagTypeId = 1, Name = "1 - 1" },
+        new Tag { Id = 2, TagTypeId = 1, Name = "2 - 1" },
+        new Tag { Id = 3, TagTypeId = 1, Name = "3 - 1" },
+        new Tag { Id = 4, TagTypeId = 2, Name = "4 - 2" },
+        new Tag { Id = 5, TagTypeId = 2, Name = "5 - 2" },
+        new Tag { Id = 6, TagTypeId = 3, Name = "6 - 3" },
+    };
+
+    public class Tag
+    {
+        public int Id { get; set; }
+        public string? Name { get; set; }
+        public int TagTypeId { get; set; }
+    }
+}
